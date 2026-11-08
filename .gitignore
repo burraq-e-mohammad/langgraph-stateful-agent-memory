@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# Environment Variables & Secrets
+.env
+.env.local
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints/
+
+# SQLite Databases & LangGraph Checkpoints
+*.db
+*.sqlite
+*.sqlite3
+langgraph_memory.db
+
+# VS Code & IDE settings
+.vscode/
+.idea/
+
+# OS Specific
+.DS_Store
+Thumbs.db
+
