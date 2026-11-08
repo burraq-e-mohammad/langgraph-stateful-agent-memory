@@ -18,6 +18,7 @@ ENV/
 
 # SQLite Databases & LangGraph Checkpoints
 *.db
+*.db-*
 *.sqlite
 *.sqlite3
 langgraph_memory.db
