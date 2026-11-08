@@ -1,4 +1,4 @@
-# 🤖 Stateful AI Agent Architecture & Persistent Memory with LangGraph & Google Gemini
+# Stateful AI Agent Architecture & Persistent Memory with LangGraph & Google Gemini
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![LangGraph](https://img.shields.io/badge/LangGraph-0.2%2B-orange.svg)](https://github.com/langchain-ai/langgraph)
@@ -15,7 +15,7 @@ A production-grade, stateful AI agent architecture engineered with **LangGraph**
 
 - **🧠 Stateful Cyclic Graph Execution**: Replaces rigid, linear LLM chains with a dynamic cyclic state machine (`StateGraph`) built on typed state schemas.
 - **⚡ Dynamic Context Condensation & Token Optimization**: Monitors active conversational depth; when history exceeds threshold boundaries, an autonomous node condenses dialogue into a cumulative summary and evicts historical messages using `RemoveMessage` to drastically reduce context window consumption and API costs.
-- **🤖 Powered by Google Gemini**: Leverages `ChatGoogleGenerativeAI` for ultra-fast, high-quality reasoning and semantic summarization with configurable model parameters (`gemini-2.5-flash`, `gemini-3.5-flash-lite`, etc.).
+- **✨ Google Gemini Integration**: Leverages `ChatGoogleGenerativeAI` for fast reasoning and semantic summarization with configurable models (`gemini-2.5-flash`, `gemini-3.5-flash-lite`, etc.).
 - **💾 ACID-Compliant Persistent Memory**: Implements thread-isolated state persistence via `SqliteSaver`, enabling session checkpointing, resilience to interruptions, and multi-user thread separation (`thread_id`).
 - **🔀 Autonomous Conditional Routing**: Dynamic branch decision-making that evaluates user intent and conversation volume to dynamically steer between continuous dialogue, context summarization, or graceful termination.
 - **⏳ Time-Travel Auditing & State Inspection**: Full replayability and auditing of conversational states across execution steps using `get_state_history()`, allowing developers to inspect state transitions and checkpoint values at any point in time.
@@ -165,13 +165,6 @@ Allows concurrent multi-tenant execution and historical playback of every execut
 - [ ] Add Human-in-the-Loop (HITL) breakpoint approval before message eviction.
 - [ ] Implement vector database retrieval (RAG) alongside episodic memory summary.
 - [ ] Support PostgreSQL checkpointer (`PostgresSaver`) for distributed cloud production deployments.
-
----
-
-## 👨‍💻 Author & Developer
-Developed by **Burraq-e-Mohammad** as part of an advanced exploration into stateful generative AI systems and agentic workflows.
-- **GitHub**: [@burraq-e-mohammad](https://github.com/burraq-e-mohammad)
-- **LinkedIn**: [Your Profile](https://www.linkedin.com/)
 
 ---
 
