@@ -32,9 +32,9 @@ flowchart TD
     
     AskAnother --> Router{Conditional Router<br/>routing_function}
     
-    Router -- Message Count > 4 --> Summarize[Node: summarize_messages<br/>Gemini Dialogue Compression & Token Eviction]
-    Router -- User Continues 'yes' --> AskQ
     Router -- User Exits 'no' --> END([__end__])
+    Router -- User Continues 'yes' & Messages > 4 --> Summarize[Node: summarize_messages<br/>Gemini Dialogue Compression & Token Eviction]
+    Router -- User Continues 'yes' & Messages <= 4 --> AskQ
     
     Summarize --> AskQ
     
