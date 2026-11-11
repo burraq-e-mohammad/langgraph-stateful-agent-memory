@@ -4,6 +4,7 @@ langchain>=0.3.0
 langchain-core>=0.3.0
 langchain-google-genai>=2.0.0
 python-dotenv>=1.0.0
+gradio>=5.0.0
 grandalf>=0.8
 mypy>=1.10.0
 mypy-ipython>=20.8.0

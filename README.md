@@ -13,11 +13,12 @@ A production-grade, stateful AI agent architecture engineered with **LangGraph**
 
 ## 🌟 Architectural Highlights & Core Capabilities
 
-- **🧠 Stateful Cyclic Graph Execution**: Replaces rigid, linear LLM chains with a dynamic cyclic state machine (`StateGraph`) built on typed state schemas.
-- **⚡ Dynamic Context Condensation & Token Optimization**: Monitors active conversational depth; when history exceeds threshold boundaries, an autonomous node condenses dialogue into a cumulative summary and evicts historical messages using `RemoveMessage` to drastically reduce context window consumption and API costs.
+- **🧠 Stateful Graph Execution**: Replaces rigid, linear LLM chains with a conditional `StateGraph` built on typed state schemas (`AgentState` / `MessagesState`).
+- **⚡ Dynamic Context Condensation & Token Optimization**: Monitors active conversational depth; when history exceeds threshold boundaries (`> 4` messages), an autonomous node condenses dialogue into a cumulative summary and evicts historical messages using `RemoveMessage` to drastically reduce context window consumption and API costs.
 - **✨ Google Gemini Integration**: Leverages `ChatGoogleGenerativeAI` for fast reasoning and semantic summarization with configurable models (`gemini-2.5-flash`, `gemini-3.5-flash-lite`, etc.).
 - **💾 ACID-Compliant Persistent Memory**: Implements thread-isolated state persistence via `SqliteSaver`, enabling session checkpointing, resilience to interruptions, and multi-user thread separation (`thread_id`).
-- **🔀 Autonomous Conditional Routing**: Dynamic branch decision-making that evaluates user intent and conversation volume to dynamically steer between continuous dialogue, context summarization, or graceful termination.
+- **🔀 Autonomous Conditional Routing**: Dynamic branch decision-making (`routing_function`) that evaluates active message volume to trigger context summarization when needed before completing a turn.
+- **💬 Interactive Gradio Chat UI**: Built-in `gr.ChatInterface` cell inside the notebook for multi-turn testing with live active message counts and persistent summary feedback.
 - **⏳ Time-Travel Auditing & State Inspection**: Full replayability and auditing of conversational states across execution steps using `get_state_history()`, allowing developers to inspect state transitions and checkpoint values at any point in time.
 
 ---
@@ -26,21 +27,16 @@ A production-grade, stateful AI agent architecture engineered with **LangGraph**
 
 ```mermaid
 flowchart TD
-    START([Start]) --> AskQ[Node: ask_question<br/>Prompt User & Record Input]
-    AskQ --> Chatbot[Node: chatbot<br/>Inject Summary Context & Query Google Gemini]
-    Chatbot --> AskAnother[Node: ask_another_question<br/>Prompt for Continuation]
+    UI([Gradio ChatInterface]) --> START([Start])
+    START --> Chatbot[Node: chatbot<br/>Inject Summary Context & Query Google Gemini]
+    Chatbot --> Router{Conditional Router<br/>routing_function}
     
-    AskAnother --> Router{Conditional Router<br/>routing_function}
-    
-    Router -- User Exits 'no' --> END([__end__])
-    Router -- User Continues 'yes' & Messages > 4 --> Summarize[Node: summarize_messages<br/>Gemini Dialogue Compression & Token Eviction]
-    Router -- User Continues 'yes' & Messages <= 4 --> AskQ
-    
-    Summarize --> AskQ
+    Router -- Messages <= 4 --> END([__end__])
+    Router -- Messages > 4 --> Summarize[Node: summarize_messages<br/>Gemini Dialogue Compression & Token Eviction]
+    Summarize --> END
     
     subgraph Persistence Layer
-        DB[(SQLite Checkpointer<br/>SqliteSaver)] -. Thread Checkpointing .- AskQ
-        DB -. State Snapshots .- Chatbot
+        DB[(SQLite Checkpointer<br/>SqliteSaver)] -. State Snapshots .- Chatbot
         DB -. Context History .- Summarize
     end
 ```
@@ -56,6 +52,7 @@ flowchart TD
 ├── requirements.txt                              # Pinned project dependencies
 ├── .env.example                                  # Environment template for Gemini API key
 ├── .gitignore                                    # Production gitignore for databases & secrets
+├── LICENSE                                       # MIT License
 └── README.md                                     # Project architecture & documentation
 ```
 
@@ -65,10 +62,11 @@ flowchart TD
 
 | Component | Technology | Purpose |
 | :--- | :--- | :--- |
-| **Orchestration** | LangGraph (`StateGraph`, `MessagesState`, `add_messages`) | Stateful agent control flow and cyclic graph logic |
+| **Orchestration** | LangGraph (`StateGraph`, `MessagesState`, `add_messages`) | Stateful agent control flow and conditional graph logic |
 | **LLM Framework** | LangChain Core & Google GenAI | Message primitives (`HumanMessage`, `AIMessage`, `RemoveMessage`) |
 | **Model** | Google Gemini (`ChatGoogleGenerativeAI`) | Fast reasoning, response generation, and dialogue distillation |
 | **Persistence** | `SqliteSaver` / SQLite3 | Thread-isolated checkpointing and session management |
+| **Chat UI** | Gradio (`gr.ChatInterface`) | Interactive multi-turn chat directly inside the notebook |
 | **Validation** | Pydantic / TypedDict / Mypy | Static type checking and schema enforcement |
 
 ---
@@ -150,7 +148,7 @@ This architecture prevents token overflow in long-running sessions by converting
 ### 3. Session Isolation & Time-Travel Debugging
 ```python
 config_thread = {"configurable": {"thread_id": "session_001"}}
-output_state = agent_app.invoke(AgentState(messages=[], summary=""), config=config_thread)
+output_state = agent_app.invoke({"messages": [HumanMessage(content="Hello!")]}, config=config_thread)
 
 # Time-travel state auditing:
 history = list(agent_app.get_state_history(config_thread))
